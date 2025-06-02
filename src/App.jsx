@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import * as jsondiffpatch from "jsondiffpatch";
+import * as jsondiffpatch from "jsondiffpatch/with-text-diffs";
 import * as htmlFormatter from "jsondiffpatch/formatters/html";
+import "jsondiffpatch/formatters/styles/annotated.css";
 import 'jsondiffpatch/formatters/styles/html.css';
 import "./App.css";
 
@@ -50,9 +51,30 @@ function App() {
     }
   };
 
+  const	runScriptTags = (htmlString) => {
+
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlString;
+
+  const scripts = tempDiv.querySelectorAll('script');
+
+  scripts.forEach(script => {
+    const scriptContent = script.textContent;
+    if (scriptContent.trim()) {
+      try {
+        eval(scriptContent);
+      } catch (e) {
+        console.error('Ошибка построения стрелок', e);
+      }
+    }
+  });
+}
+
   const renderDiff = () => {
     if (!delta) return null;
     const format = htmlFormatter.format(delta);
+    htmlFormatter.hideUnchanged();
+    runScriptTags(format); // eval scripts for arrows
 
     return (
       <div className="diff-container">
