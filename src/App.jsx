@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as jsondiffpatch from "jsondiffpatch/with-text-diffs";
 import * as htmlFormatter from "jsondiffpatch/formatters/html";
 import "jsondiffpatch/formatters/styles/annotated.css";
@@ -45,6 +45,48 @@ function CopyIdButton({ jsonString }) {
     >
       Спарсить id
     </button>
+  );
+}
+
+function ThemeSwitcher() {
+  const [theme, setTheme] = useState('system');
+
+  useEffect(() => {
+    const handleSystemThemeChange = (e) => {
+      if (theme === 'system') {
+        document.body.dataset.theme = e.matches ? 'dark' : 'light';
+      }
+    };
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
+
+    if (theme === 'system') {
+      document.body.dataset.theme = mediaQuery.matches ? 'dark' : 'light';
+    } else {
+      document.body.dataset.theme = theme;
+    }
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleSystemThemeChange);
+    };
+  }, [theme]);
+
+  const handleThemeChange = () => {
+    const themes = ['system', 'light', 'dark'];
+    const nextTheme = themes[(themes.indexOf(theme) + 1) % themes.length];
+    setTheme(nextTheme);
+  };
+
+  return (
+    <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+      <button
+        className="theme-switcher-btn"
+        onClick={handleThemeChange}
+        title={`Текущая тема: ${theme}`}
+      >
+      </button>
+    </div>
   );
 }
 
@@ -110,6 +152,7 @@ function App() {
 
   return (
     <div className="App">
+      <ThemeSwitcher />
       <h1>Сравнение JSON документов</h1>
       <div className="json-inputs">
         <div className="json-input">
