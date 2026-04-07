@@ -95,6 +95,29 @@ function App() {
   const [rightJson, setRightJson] = useState("");
   const [error, setError] = useState("");
   const [delta, setDelta] = useState(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  const handleScroll = () => {
+    if (window.scrollY > 2000) {
+      setShowScrollButton(true);
+    } else {
+      setShowScrollButton(false);
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const compareJson = () => {
     try {
@@ -183,6 +206,12 @@ function App() {
       <button className="compare-btn" onClick={compareJson}>Сравнить</button>
       {error && <div className="error">{error}</div>}
       {renderDiff()}
+
+      {showScrollButton && (
+        <button className="scroll-to-top-btn" onClick={scrollToTop}>
+          <span className="arrow-up"></span>
+        </button>
+      )}
     </div>
   );
 }
